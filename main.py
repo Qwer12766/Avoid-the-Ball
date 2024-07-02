@@ -2,6 +2,7 @@ import pygame
 import sys
 from button import draw_button
 from timer import start_timer, get_elapsed_time
+from character import Character
 
 # Pygame 초기화
 pygame.init()
@@ -31,6 +32,9 @@ else:
 start_time = None
 timer_running = False
 
+# 캐릭터 초기화
+character = Character(screen, width // 2, height // 2)
+
 # 메인 게임 루프
 running = True
 while running:
@@ -47,6 +51,11 @@ while running:
                     timer_running = True
                     start_time = start_timer()  # 타이머 시작
                     print("게임 시작")  # 게임 시작 메시지 출력
+    
+    # 키 입력 처리 (캐릭터 움직임)
+    keys = pygame.key.get_pressed()
+    if timer_running:
+        character.move(keys)
     
     # 화면 업데이트
     screen.fill((255, 255, 255))
@@ -66,6 +75,9 @@ while running:
         score_surface = font.render(score_text, True, (0, 0, 0))
         score_rect = score_surface.get_rect(topleft=(20, 20))
         screen.blit(score_surface, score_rect)
+        
+        # 캐릭터 그리기
+        character.draw()
     
     pygame.display.flip()
     pygame.time.delay(10)  # CPU 과부하 줄이기

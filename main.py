@@ -12,9 +12,20 @@ height = 700
 screen = pygame.display.set_mode((width, height))
 pygame.display.set_caption("Ball game")
 
-# 한글이 안나와!!!!
-pygame.font.init()  # 한글이 안나와!!!!
-font = pygame.font.Font(None, 35)
+# 한글 폰트 설정 (시스템 폰트 사용)
+pygame.font.init()
+available_fonts = pygame.font.get_fonts()
+
+# 여러 폰트 이름을 시도하여 한글을 지원하는 폰트를 찾기
+preferred_fonts = ["malgungothic", "nanummyeongjo", "d2coding", "gulim"]
+
+for font_name in preferred_fonts:
+    if font_name in available_fonts:
+        font = pygame.font.SysFont(font_name, 35)
+        break
+else:
+    print("적절한 한글 폰트를 찾을 수 없습니다.")
+    sys.exit()
 
 # 타이머와 게임 상태 변수 초기화
 start_time = None
@@ -57,7 +68,7 @@ while running:
         screen.blit(score_surface, score_rect)
     
     pygame.display.flip()
-    pygame.time.delay(10)  # CPU 과부하줄이기
+    pygame.time.delay(10)  # CPU 과부하 줄이기
     pygame.display.update()
 
 # Pygame 종료 및 프로그램 종료

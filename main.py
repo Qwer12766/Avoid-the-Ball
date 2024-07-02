@@ -42,6 +42,8 @@ best_time = float('inf')
 # 최고 기록 초기화 및 저장된 게임 상태 불러오기
 character_position, timer_running, start_time, best_time = load_game_state()
 
+timer_running = False
+
 # 메인 게임 루프
 running = True
 while running:
@@ -90,7 +92,6 @@ while running:
 
     pygame.display.flip()
     pygame.time.delay(10)  # CPU 과부하 줄이기
-    pygame.display.update()
 
 # Pygame 종료 및 프로그램 종료
 pygame.quit()

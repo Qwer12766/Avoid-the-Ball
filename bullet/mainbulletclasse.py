@@ -7,7 +7,7 @@ from dataset 	import *
 
 class BULLET:
 	def __init__(self,
-			  	start_position	: Vector2,
+			  	start_position	: Vector,
 			  	contact_range	: float,
 				life_time 		: float,
 				speed			: float):
@@ -18,7 +18,7 @@ class BULLET:
 		self.position		= start_position
 		self.start_life_time= time.time()
 		
-	def _TagetAngle(self, taget_position : Vector2) -> float:
+	def _TagetAngle(self, taget_position : Vector) -> float:
 
 		X_Pos = taget_position.x - self.position.x
 		Y_Pos = taget_position.y - self.position.y
@@ -32,7 +32,7 @@ class BULLET:
 		
 
 	def ShowBullet(self, screen, bullet_img) -> None:
-		pygame.draw.circle(screen, Color['black'], (self.position.x, self.position.y), bullet_img)
+		pygame.draw.circle(screen, Color.black, (self.position.x, self.position.y), bullet_img)
 		
 
 	def DelChecker(self, taget_position) -> bool:
@@ -47,14 +47,14 @@ class BULLET:
 			else:
 				return False
 
-	def Movement(self, screen, taget_position : Vector2) -> None:
+	def Movement(self, screen, taget_position : Vector) -> None:
 		self.ShowBullet(screen, self.contact_range)
 			
 
 			
 class MultipleBullet:
 	def __init__(self,
-				focus_position	: Vector2,
+				focus_position	: Vector,
 				focus_angle		: float,
 				shots_angle		: float,
 				shots_size		: int,
@@ -81,11 +81,11 @@ class MultipleBullet:
 
 	def Movement(self, 
 			  	screen 			: pygame.surface.Surface,
-				taget_position	: Vector2) -> None:
+				taget_position	: Vector) -> None:
 		
 		if self.start_shots_cool_time + self.shots_cool_time < time.time():
 			self.shots += [
-				(self.bullat_type(start_position = Vector2(self.focus_position.x, self.focus_position.y), **self.bullat_index), 
+				(self.bullat_type(start_position = Vector(self.focus_position.x, self.focus_position.y), **self.bullat_index), 
 	 			 self.start_angle + self.shot_angle*i)
 				 for i in range(self.shots_size)]
 			

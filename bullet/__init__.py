@@ -1,25 +1,21 @@
 import time
+import math
 import pygame
 
 from dataclasse 		import *
 from dataset 			import *
 from mainbulletclasse 	import BULLET, MultipleBullet
 
-'''
-'' 1. 생성 이펙트, 파괴 이펙트
-'' 2. 이동(직진, 추적, 학습)
-'' 3. 크기, 속도(속도변화), 최대생존시간
-'' 4. 위치, 방향(백터), 생존시간
-'''	
+
 class Normal_Bullet(BULLET):
 	def __init__(self,
-			  	start_position	: Vector2,
-		  		contact_range 	: float,
-		  		life_time 		: float,
-		  		speed			: float,
-				  
-				taget_position	: Vector2):
-		  
+				start_position	: Vector,
+				contact_range 	: float,
+				life_time 		: float,
+				speed			: float,
+					
+				taget_position	: Vector):
+		
 		BULLET.__init__(self, start_position, contact_range, life_time, speed)
 
 		self.angle = self._TagetAngle(taget_position)
@@ -32,7 +28,7 @@ class Normal_Bullet(BULLET):
 		self.ShowBullet(screen, self.contact_range)
 class Guided_Bullet(BULLET):	
 	def __init__(self, 
-		  		start_position	: Vector2,
+		  		start_position	: Vector,
 		  		contact_range 	: float,
 		  		life_time 		: float,
 		  		speed			: float):
@@ -42,13 +38,13 @@ class Guided_Bullet(BULLET):
 
 	def Movement(self,
 			  	screen			: pygame.surface.Surface,
-				taget_position	: Vector2,) -> None:
+				taget_position	: Vector,) -> None:
 		
 		self._NextPosition(self._TagetAngle(taget_position))
 		self.ShowBullet(screen, self.contact_range)
 class Variable_Velocity_Guided_Bullet(BULLET):	
 	def __init__(self, 
-		  		start_position	: Vector2,
+		  		start_position	: Vector,
 		  		contact_range 	: float,
 		  		life_time 		: float,
 
@@ -66,7 +62,7 @@ class Variable_Velocity_Guided_Bullet(BULLET):
 
 	def Movement(self, 
 			  	screen 			: pygame.surface.Surface,
-				taget_position	: Vector2) -> None:
+				taget_position	: Vector) -> None:
 		
 		if self.speed < self.min_speed:
 			self.taget_angle= self._TagetAngle(taget_position)
@@ -78,11 +74,11 @@ class Variable_Velocity_Guided_Bullet(BULLET):
 		self.ShowBullet(screen, self.contact_range)
 class Normal_Multiple_Bullet(Normal_Bullet, MultipleBullet):
 	def __init__(self,
-			  	start_position	: Vector2,
+			  	start_position	: Vector,
 		  		contact_range 	: float,
 		  		life_time 		: float,
 		  		speed			: float,
-				taget_position	: Vector2,
+				taget_position	: Vector,
 
 				shots_angle		: float,
 				shots_size		: int,
@@ -94,32 +90,85 @@ class Normal_Multiple_Bullet(Normal_Bullet, MultipleBullet):
 		  		shots_speed			: float):
 		  
 		Normal_Bullet.__init__(self, 
-						 start_position, 
-						 contact_range, 
-						 life_time, 
-						 speed, 
-						 taget_position)
+						start_position, 
+						contact_range, 
+						life_time, 
+						speed, 
+						taget_position)
 		
 		MultipleBullet.__init__(self, 
-						  start_position, 
-						  self.angle, 
-						  shots_angle, 
-						  shots_size, 
-						  shots_cool_time, 
-						  shots_spin_speed, 
+						start_position, 
+						self.angle, 
+						shots_angle, 
+						shots_size, 
+						shots_cool_time, 
+						shots_spin_speed, 
 
-						  Normal_Bullet, 
-						  contact_range = shots_contact_range, 
-						  life_time 	= shots_life_time, 
-						  speed 		= shots_speed, 
-						  taget_position= taget_position)
+						Normal_Bullet, 
+						contact_range = shots_contact_range, 
+						life_time 	= shots_life_time, 
+						speed 		= shots_speed, 
+						taget_position= taget_position)
 		
 	def Movement(self, 
 			  	screen 			: pygame.surface.Surface, 
-				taget_position	: Vector2) -> None:
+				taget_position	: Vector) -> None:
 		
 		Normal_Bullet.Movement(self, screen, None)
 		MultipleBullet.Movement(self, screen, taget_position)
+
+class Formation:
+	def circle(
+			range_ 			: float, 
+			size 		  	: int,
+			center_position	: Vector,
+			bullat_type		: type,
+			**bullat_index) -> list:
+		
+		bullat_angle = 2*math.pi/size
+	
+		bullets = []
+		
+		for i in range(size):
+			X_Pos = math.cos(bullat_angle*i)*range_ + center_position.x
+			Y_Pos = math.sin(bullat_angle*i)*range_ + center_position.y
+			
+			bullets.append(
+				bullat_type(**bullat_index, start_position = Vector(X_Pos, Y_Pos)))
+					
+		return bullets
+		
+	def wall(
+			range_ 			: float, 
+			size 		  	: int,
+			location	   	: Vector,
+			center_position	: Vector,
+			bullat_type		: type,
+			**bullat_index) -> list:
+				
+		bullat_crack = range_/(size-0.999)
+		
+		bullets = []
+				
+		for i in range(size):
+			if location[1] == 0:
+				X_Pos = (range_ * location[0])
+				Y_Pos = (bullat_crack*i) - (range_/2)
+				
+				if 'taget_position' in bullat_index:
+					bullat_index['taget_position'] = Vector(-X_Pos + center_position.x, Y_Pos + center_position.y)
+			else:
+				X_Pos = (bullat_crack*i) - (range_/2)
+				Y_Pos = (range_ * location[1])
+				
+				if 'taget_position' in bullat_index:
+					bullat_index['taget_position'] = Vector(X_Pos + center_position.x, -Y_Pos + center_position.y)
+			
+			bullets.append(
+				bullat_type(**bullat_index, start_position = Vector(X_Pos + center_position.x, Y_Pos + center_position.y)))
+				
+		return bullets
+		
 
 if __name__ == "__main__":
 	import sys
@@ -134,8 +183,8 @@ if __name__ == "__main__":
 	clock = pygame.time.Clock()
 
 	while True:
-		MousePos = Vector2(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1])
-		StartPos = Vector2(random.randint(0,1000), random.randint(0,1000))
+		MousePos = Vector(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1])
+		StartPos = Vector(random.randint(0,1000), random.randint(0,1000))
 
 		clock.tick(64) 
 
@@ -147,32 +196,38 @@ if __name__ == "__main__":
 			if event.type == pygame.KEYDOWN:
 
 				if event.key == pygame.K_UP:
-					bullets.append(
-						Normal_Bullet(
-							**bulletsetting['Normal_Bullet'],
-							start_position	= StartPos,
-							taget_position	= MousePos))
+					bullets += Formation.circle(range_ 		 	= 600,
+												size 		   	= 8,
+												center_position = MousePos,
+												bullat_type 	= Guided_Bullet,
+												**bulletsetting['Guided_Bullet'])
 					
 				if event.key == pygame.K_DOWN:
-					bullets.append(
-						Guided_Bullet(
-							**bulletsetting['Guided_Bullet'],
-							start_position	= StartPos))
+					bullets += Formation.circle(range_ 		 	= 700,
+												size 		   	= 6,
+												center_position = MousePos,
+												bullat_type 	= Variable_Velocity_Guided_Bullet,
+												**bulletsetting['Variable_Velocity_Guided_Bullet'])
 
 				if event.key == pygame.K_RIGHT:
-					bullets.append(
-						Variable_Velocity_Guided_Bullet( 
-							**bulletsetting['Variable_Velocity_Guided_Bullet'],
-							start_position	= StartPos))
+					bullets += Formation.wall(range_ 		 	= 1000,
+												size 		   	= 9,
+												location		= Vector.Right,
+												center_position = MousePos,
+												bullat_type 	= Normal_Bullet,
+												taget_position  = MousePos,
+												**bulletsetting['Normal_Bullet'])
 					
 				if event.key == pygame.K_LEFT:
-					bullets.append(
-						Normal_Multiple_Bullet( 
-							**bulletsetting['Normal_Multiple_Bullet'],
-							start_position	= StartPos,
-							taget_position	= MousePos))
+					bullets += Formation.wall(range_ 		 	=1000,
+												size 		   	= 9,
+												location		= Vector.Left,
+												center_position = MousePos,
+												bullat_type 	= Normal_Multiple_Bullet,
+												taget_position  = MousePos,
+												**bulletsetting['Normal_Multiple_Bullet'])
 				
-		screen.fill(Color['white'])
+		screen.fill(Color.white)
 
 		for bullet in bullets:
 			bullet.Movement(screen, MousePos)

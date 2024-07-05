@@ -35,17 +35,17 @@ class BULLET:
 		pygame.draw.circle(screen, Color.black, (self.position.x, self.position.y), bullet_img)
 		
 
-	def DelChecker(self, taget_position) -> bool:
+	def DelChecker(self, taget_position) -> int:
 
 		if self.start_life_time + self.life_time < time.time():
-			return True
+			return 1
 		else:
 			X_Pos = taget_position.x - self.position.x
 			Y_Pos = taget_position.y - self.position.y
 			if (X_Pos**2 + Y_Pos**2) < self.contact_range**2:
-				return True
+				return 2
 			else:
-				return False
+				return 0
 
 	def Movement(self, screen, taget_position : Vector) -> None:
 		self.ShowBullet(screen, self.contact_range)
@@ -84,14 +84,12 @@ class MultipleBullet:
 				taget_position	: Vector) -> None:
 		
 		if self.start_shots_cool_time + self.shots_cool_time < time.time():
-			self.shots += [
-				(self.bullat_type(start_position = Vector(self.focus_position.x, self.focus_position.y), **self.bullat_index), 
-	 			 self.start_angle + self.shot_angle*i)
-				 for i in range(self.shots_size)]
-			
 			self.start_shots_cool_time = time.time()
-
-		for shot in self.shots:
-			shot[0]._NextPosition(shot[1])
-			shot[0].ShowBullet(screen, shot[0].contact_range)
-			if shot[0].DelChecker(taget_position): self.shots.remove(shot)
+			return [
+				self.bullat_type(start_position = Vector(self.focus_position.x, self.focus_position.y), 
+								taget_position = Vector(math.cos(self.start_angle + (self.shot_angle*i))+ self.focus_position.x, 
+														math.sin(self.start_angle + (self.shot_angle*i))+ self.focus_position.y)
+,
+								**self.bullat_index)
+				 for i in range(self.shots_size)]
+		return None

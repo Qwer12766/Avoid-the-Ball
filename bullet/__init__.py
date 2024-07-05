@@ -22,10 +22,12 @@ class Normal_Bullet(BULLET):
 		
 
 	def Movement(self,
-				screen 			: pygame.surface.Surface, _) -> None:
+				screen 			: pygame.surface.Surface, _):
 		
 		self._NextPosition(self.angle)
 		self.ShowBullet(screen, self.contact_range)
+
+		return None
 class Guided_Bullet(BULLET):	
 	def __init__(self, 
 		  		start_position	: Vector,
@@ -38,10 +40,12 @@ class Guided_Bullet(BULLET):
 
 	def Movement(self,
 			  	screen			: pygame.surface.Surface,
-				taget_position	: Vector,) -> None:
+				taget_position	: Vector,):
 		
 		self._NextPosition(self._TagetAngle(taget_position))
 		self.ShowBullet(screen, self.contact_range)
+
+		return None
 class Variable_Velocity_Guided_Bullet(BULLET):	
 	def __init__(self, 
 		  		start_position	: Vector,
@@ -62,7 +66,7 @@ class Variable_Velocity_Guided_Bullet(BULLET):
 
 	def Movement(self, 
 			  	screen 			: pygame.surface.Surface,
-				taget_position	: Vector) -> None:
+				taget_position	: Vector):
 		
 		if self.speed < self.min_speed:
 			self.taget_angle= self._TagetAngle(taget_position)
@@ -72,6 +76,7 @@ class Variable_Velocity_Guided_Bullet(BULLET):
 		self._NextPosition(self.taget_angle)
 
 		self.ShowBullet(screen, self.contact_range)
+		return None
 class Normal_Multiple_Bullet(Normal_Bullet, MultipleBullet):
 	def __init__(self,
 			  	start_position	: Vector,
@@ -107,15 +112,14 @@ class Normal_Multiple_Bullet(Normal_Bullet, MultipleBullet):
 						Normal_Bullet, 
 						contact_range = shots_contact_range, 
 						life_time 	= shots_life_time, 
-						speed 		= shots_speed, 
-						taget_position= taget_position)
+						speed 		= shots_speed)
 		
 	def Movement(self, 
 			  	screen 			: pygame.surface.Surface, 
-				taget_position	: Vector) -> None:
+				taget_position	: Vector):
 		
 		Normal_Bullet.Movement(self, screen, None)
-		MultipleBullet.Movement(self, screen, taget_position)
+		return MultipleBullet.Movement(self, screen, taget_position)
 
 class Formation:
 	def circle(
@@ -182,7 +186,9 @@ if __name__ == "__main__":
 
 	clock = pygame.time.Clock()
 
-	while True:
+	
+	GAME = True
+	while GAME:
 		MousePos = Vector(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1])
 		StartPos = Vector(random.randint(0,1000), random.randint(0,1000))
 
@@ -220,7 +226,7 @@ if __name__ == "__main__":
 					
 				if event.key == pygame.K_LEFT:
 					bullets += Formation.wall(range_ 		 	=1000,
-												size 		   	= 9,
+												size 		   	= 4,
 												location		= Vector.Left,
 												center_position = MousePos,
 												bullat_type 	= Normal_Multiple_Bullet,
@@ -230,7 +236,16 @@ if __name__ == "__main__":
 		screen.fill(Color.white)
 
 		for bullet in bullets:
-			bullet.Movement(screen, MousePos)
-			if bullet.DelChecker(MousePos): bullets.remove(bullet)
+			shots = bullet.Movement(screen, MousePos)
+			if shots: bullets += shots
+			
+			Del_Checke = bullet.DelChecker(MousePos)
+			
+			if Del_Checke == 1: bullets.remove(bullet)
+			elif Del_Checke == 2:
+				GAME = False
 
 		pygame.display.update()
+		
+	pygame.quit()
+	#sys.exit()

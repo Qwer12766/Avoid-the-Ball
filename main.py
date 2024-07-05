@@ -8,7 +8,7 @@ from save_game_state import load_game_state, save_game_state
 pygame.init()
 WIDTH, HEIGHT = 700, 700
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Ball game")
+pygame.display.set_caption("Avoid_TheBall")
 
 # 한글 폰트 설정 (pygame의 기본 폰트 사용)
 pygame.font.init()
@@ -41,15 +41,21 @@ while running:
 
     # 타이머 또는 시작 버튼 그리기
     if not timer_running:
+        pygame.mouse.set_visible(True)
+
         draw_button(screen, 'Start', start_button_rect.x, start_button_rect.y,
                     start_button_rect.width, start_button_rect.height,
                     (100, 100, 100), (150, 150, 150), font)
+        
 
     else:
+        pygame.mouse.set_visible(False)
+
         elapsed_time = get_elapsed_time(start_time)
         score_text = f'Your Record: {elapsed_time:.2f}'
         text_surface = font.render(score_text, True, (0, 0, 0))
         screen.blit(text_surface, (20, 20))
+
 
         # 마우스 위치에 따라 캐릭터 위치 업데이트
         character_x, character_y = update_character_position(screen, character_x, character_y, character_size)

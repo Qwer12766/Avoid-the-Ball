@@ -33,7 +33,8 @@ class Guided_Bullet(BULLET):
 		  		start_position	: Vector,
 		  		contact_range 	: float,
 		  		life_time 		: float,
-		  		speed			: float):
+		  		speed			: float,
+				taget_position	: Vector):
 		
 		BULLET.__init__(self, start_position, contact_range, life_time, speed)
 
@@ -51,6 +52,7 @@ class Variable_Velocity_Guided_Bullet(BULLET):
 		  		start_position	: Vector,
 		  		contact_range 	: float,
 		  		life_time 		: float,
+				taget_position	: Vector,
 
 		  		max_speed		: float,
 		  		min_speed		: float,
@@ -126,8 +128,8 @@ class Formation:
 			range_ 			: float, 
 			size 		  	: int,
 			center_position	: Vector,
-			bullat_type		: type,
-			**bullat_index) -> list:
+			target_position : Vector,
+			bullat_type		: type) -> list:
 		
 		bullat_angle = 2*math.pi/size
 	
@@ -138,7 +140,7 @@ class Formation:
 			Y_Pos = math.sin(bullat_angle*i)*range_ + center_position.y
 			
 			bullets.append(
-				bullat_type(**bullat_index, start_position = Vector(X_Pos, Y_Pos)))
+				bullat_type(**bulletsetting[bullat_type.__name__], taget_position = target_position, start_position = Vector(X_Pos, Y_Pos)))
 					
 		return bullets
 		
@@ -147,29 +149,30 @@ class Formation:
 			size 		  	: int,
 			location	   	: Vector,
 			center_position	: Vector,
-			bullat_type		: type,
-			**bullat_index) -> list:
+			target_position : Vector,
+			bullat_type		: type) -> list:
 				
-		bullat_crack = range_/(size-0.999)
+		bullat_crack = range_/(size-0.999)*2
 		
 		bullets = []
+
+		bulletsetting_ = {}
+		bulletsetting_.update(bulletsetting[bullat_type.__name__])
 				
 		for i in range(size):
 			if location[1] == 0:
 				X_Pos = (range_ * location[0])
-				Y_Pos = (bullat_crack*i) - (range_/2)
+				Y_Pos = (bullat_crack*i) - range_
 				
-				if 'taget_position' in bullat_index:
-					bullat_index['taget_position'] = Vector(-X_Pos + center_position.x, Y_Pos + center_position.y)
+				taget_position = Vector(-X_Pos + center_position.x, Y_Pos + center_position.y)
 			else:
-				X_Pos = (bullat_crack*i) - (range_/2)
+				X_Pos = (bullat_crack*i) - range_
 				Y_Pos = (range_ * location[1])
 				
-				if 'taget_position' in bullat_index:
-					bullat_index['taget_position'] = Vector(X_Pos + center_position.x, -Y_Pos + center_position.y)
+				taget_position = Vector(X_Pos + center_position.x, -Y_Pos + center_position.y)
 			
 			bullets.append(
-				bullat_type(**bullat_index, start_position = Vector(X_Pos + center_position.x, Y_Pos + center_position.y)))
+				bullat_type(**bulletsetting_, taget_position = taget_position, start_position = Vector(X_Pos + center_position.x, Y_Pos + center_position.y)))
 				
 		return bullets
 		
@@ -181,16 +184,18 @@ if __name__ == "__main__":
 	bullets = []
 
 	pygame.init()
-	size = [1000, 1000]
+	size = [700, 700]
 	screen = pygame.display.set_mode(size)
 
 	clock = pygame.time.Clock()
 
+	bullat_type = Normal_Bullet
+	formation_ = Formation.circle
 	
 	GAME = True
 	while GAME:
 		MousePos = Vector(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1])
-		StartPos = Vector(random.randint(0,1000), random.randint(0,1000))
+		StartPos = Vector(random.randint(0,size[0]), random.randint(0,size[1]))
 
 		clock.tick(64) 
 
@@ -199,21 +204,35 @@ if __name__ == "__main__":
 				pygame.quit()
 				sys.exit()
 
-			if event.type == pygame.KEYDOWN:
 
+			other = {'range_' : 350, 'size' : 8, 'center_position' : Vector(350,350), 'target_position' : MousePos}
+
+			if event.type == pygame.KEYDOWN:
+				if event.key == pygame.K_u: bullat_type = Normal_Bullet
+				if event.key == pygame.K_i: bullat_type = Guided_Bullet
+				if event.key == pygame.K_o: bullat_type = Variable_Velocity_Guided_Bullet
+				if event.key == pygame.K_p: bullat_type = Normal_Multiple_Bullet
+
+
+				if event.key == pygame.K_RSHIFT: bullets += Formation.circle(bullat_type = bullat_type, **other)
+
+				if event.key == pygame.K_UP: 	bullets += Formation.wall(bullat_type = bullat_type, location = Vector.Up, 		**other)
+				if event.key == pygame.K_DOWN: 	bullets += Formation.wall(bullat_type = bullat_type, location = Vector.Down, 	**other)
+				if event.key == pygame.K_RIGHT:	bullets += Formation.wall(bullat_type = bullat_type, location = Vector.Right, 	**other)
+				if event.key == pygame.K_LEFT: 	bullets += Formation.wall(bullat_type = bullat_type, location = Vector.Left, 	**other)
+
+				'''
 				if event.key == pygame.K_UP:
 					bullets += Formation.circle(range_ 		 	= 600,
 												size 		   	= 8,
 												center_position = MousePos,
-												bullat_type 	= Guided_Bullet,
-												**bulletsetting['Guided_Bullet'])
+												bullat_type 	= Guided_Bullet)
 					
 				if event.key == pygame.K_DOWN:
 					bullets += Formation.circle(range_ 		 	= 700,
 												size 		   	= 6,
 												center_position = MousePos,
-												bullat_type 	= Variable_Velocity_Guided_Bullet,
-												**bulletsetting['Variable_Velocity_Guided_Bullet'])
+												bullat_type 	= Variable_Velocity_Guided_Bullet)
 
 				if event.key == pygame.K_RIGHT:
 					bullets += Formation.wall(range_ 		 	= 1000,
@@ -221,8 +240,7 @@ if __name__ == "__main__":
 												location		= Vector.Right,
 												center_position = MousePos,
 												bullat_type 	= Normal_Bullet,
-												taget_position  = MousePos,
-												**bulletsetting['Normal_Bullet'])
+												add_target  	= True)
 					
 				if event.key == pygame.K_LEFT:
 					bullets += Formation.wall(range_ 		 	=1000,
@@ -230,8 +248,8 @@ if __name__ == "__main__":
 												location		= Vector.Left,
 												center_position = MousePos,
 												bullat_type 	= Normal_Multiple_Bullet,
-												taget_position  = MousePos,
-												**bulletsetting['Normal_Multiple_Bullet'])
+												add_target  	= True)
+				'''
 				
 		screen.fill(Color.white)
 
@@ -243,7 +261,8 @@ if __name__ == "__main__":
 			
 			if Del_Checke == 1: bullets.remove(bullet)
 			elif Del_Checke == 2:
-				GAME = False
+				#GAME = False
+				print('GameOver')
 
 		pygame.display.update()
 		

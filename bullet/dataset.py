@@ -26,7 +26,7 @@ bulletsetting = {
 		'shots_angle'		: 1,
 		'shots_size'		: 4,
 		'shots_cool_time'	: 0.5,
-		'shots_spin_speed'	: None,
+		'shots_spin_angle'	: 0,
 		
 		'shots_contact_range' 	: 4,
 		'shots_life_time' 		: 2,

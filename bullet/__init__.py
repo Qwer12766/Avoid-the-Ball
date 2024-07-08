@@ -89,7 +89,7 @@ class Normal_Multiple_Bullet(Normal_Bullet, MultipleBullet):
 				shots_angle		: float,
 				shots_size		: int,
 				shots_cool_time : float,
-				shots_spin_speed: float,
+				shots_spin_angle: float,
 
 		  		shots_contact_range : float,
 		  		shots_life_time 	: float,
@@ -108,7 +108,7 @@ class Normal_Multiple_Bullet(Normal_Bullet, MultipleBullet):
 						shots_angle, 
 						shots_size, 
 						shots_cool_time, 
-						shots_spin_speed, 
+						shots_spin_angle, 
 
 						Normal_Bullet, 
 						contact_range = shots_contact_range, 

@@ -59,7 +59,7 @@ class MultipleBullet:
 				shots_angle		: float,
 				shots_size		: int,
 				shots_cool_time : float,
-				shots_spin_speed: float,
+				shots_spin_angle: float,
 				
 				bullat_type		: type,
 				**bullat_index):
@@ -67,7 +67,7 @@ class MultipleBullet:
 		self.shots = []
 
 		self.start_angle= math.pi + focus_angle - (shots_angle/2)
-		self.shot_angle	= shots_angle/(shots_size-1)
+		self.shot_angle	= shots_angle/(shots_size-0.9999)
 
 		self.shots_size = shots_size
 
@@ -78,6 +78,7 @@ class MultipleBullet:
 		self.focus_position = focus_position
 		self.bullat_index 	= bullat_index
 		self.shots_size 	= shots_size
+		self.shots_spin_angle=shots_spin_angle
 
 	def Movement(self, 
 			  	screen 			: pygame.surface.Surface,
@@ -85,6 +86,7 @@ class MultipleBullet:
 		
 		if self.start_shots_cool_time + self.shots_cool_time < time.time():
 			self.start_shots_cool_time = time.time()
+			self.start_angle += self.shots_spin_angle
 			return [
 				self.bullat_type(start_position = Vector(self.focus_position.x, self.focus_position.y), 
 								taget_position = Vector(math.cos(self.start_angle + (self.shot_angle*i))+ self.focus_position.x, 

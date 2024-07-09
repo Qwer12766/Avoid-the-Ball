@@ -13,3 +13,8 @@ def draw_button(screen, text, x, y, width, height, inactive_color, active_color,
     text_surface = font.render(text, True, (0, 0, 0))
     text_rect = text_surface.get_rect(center=button_rect.center)
     screen.blit(text_surface, text_rect)
+
+def draw_best_record(screen, best_time, font):
+    best_time_text = f'Best Record: {best_time:.2f}'
+    best_time_surface = font.render(best_time_text, True, (0, 0, 0))
+    screen.blit(best_time_surface, (20, 20))

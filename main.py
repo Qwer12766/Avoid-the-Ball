@@ -1,5 +1,5 @@
 import pygame
-from Start_Button import draw_button
+from Start_Button import draw_button, draw_best_record
 from timer import start_timer, get_elapsed_time
 from Moving import draw_character, update_character_position
 from save_game_state import load_game_state, save_game_state
@@ -54,7 +54,7 @@ while running:
 
     screen.fill((255, 255, 255))
 
-    # 타이머 또는 시작 버튼 그리기
+    # 시작 버튼 또는 타이머 상태에 따라 그리기
     if not timer_running:
         pygame.mouse.set_visible(True)
         draw_button(screen, 'Start', start_button_rect.x, start_button_rect.y,
@@ -63,9 +63,7 @@ while running:
 
         # 최고 기록 표시
         if best_time < float('inf'):
-            best_time_text = f'Best Record: {best_time:.2f}'
-            best_time_surface = font.render(best_time_text, True, (0, 0, 0))
-            screen.blit(best_time_surface, (20, 20))
+            draw_best_record(screen, best_time, font)
 
     else:
         pygame.mouse.set_visible(False)
@@ -73,14 +71,12 @@ while running:
         score_text = f'Your Record: {elapsed_time:.2f}'
         text_surface = font.render(score_text, True, (0, 0, 0))
         screen.blit(text_surface, (20, 20))
-        
 
-        # 마우스 위치에 따라 캐릭터 위치 업데이트
+        # 캐릭터 위치 업데이트 및 그리기
         character_x, character_y = update_character_position(screen, character_x, character_y, character_size)
-
-        # 캐릭터 그리기
         draw_character(screen, character_x, character_y, character_size, character_color)
 
+        # 게임 상태 저장
         save_game_state((character_x, character_y), timer_running, start_time, best_time)
 
     pygame.display.flip()

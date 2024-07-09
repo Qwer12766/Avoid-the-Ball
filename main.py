@@ -47,7 +47,7 @@ while running:
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_f:
                 if timer_running:
                     elapsed_time = get_elapsed_time(start_time)
-                    if elapsed_time < best_time:
+                    if elapsed_time > best_time:
                         best_time = elapsed_time
                 reset_game_state()
                 save_game_state((character_x, character_y), timer_running, start_time, best_time)
@@ -60,6 +60,7 @@ while running:
         draw_button(screen, 'Start', start_button_rect.x, start_button_rect.y,
                     start_button_rect.width, start_button_rect.height,
                     (100, 100, 100), (150, 150, 150), font)
+
         # 최고 기록 표시
         if best_time < float('inf'):
             best_time_text = f'Best Record: {best_time:.2f}'
@@ -72,6 +73,7 @@ while running:
         score_text = f'Your Record: {elapsed_time:.2f}'
         text_surface = font.render(score_text, True, (0, 0, 0))
         screen.blit(text_surface, (20, 20))
+        
 
         # 마우스 위치에 따라 캐릭터 위치 업데이트
         character_x, character_y = update_character_position(screen, character_x, character_y, character_size)

@@ -16,6 +16,7 @@ class BULLET:
 		self.life_time		= life_time
 		self.speed			= speed
 		self.position		= Vector(start_position.x, start_position.y)
+		self.position_before= Vector(start_position.x, start_position.y)
 		self.start_life_time= time.time()
 		
 	def _targetAngle(self, target_position : Vector) -> float:
@@ -26,12 +27,13 @@ class BULLET:
 	
 
 	def _NextPosition(self, angle : float) -> None:
-
+		self.position_before = Vector(self.position.x, self.position.y)
 		self.position.x += math.cos(angle)*self.speed
 		self.position.y += math.sin(angle)*self.speed
 		
 
-	def ShowBullet(self, screen, bullet_img) -> None:
+	def ShowBullet(self, screen, shadow_color, bullet_img) -> None:
+		pygame.draw.circle(screen, shadow_color, (self.position_before.x, self.position_before.y), bullet_img)
 		pygame.draw.circle(screen, Color.black, (self.position.x, self.position.y), bullet_img)
 		
 
@@ -48,7 +50,7 @@ class BULLET:
 				return 0
 
 	def Movement(self, screen, target_position : Vector) -> None:
-		self.ShowBullet(screen, self.contact_range)
+		self.ShowBullet(screen, Color.black, self.contact_range)
 			
 
 			

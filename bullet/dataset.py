@@ -5,12 +5,14 @@ bulletsetting = {
 		'contact_range' 	: 10,
 		'life_time' 		: 15,
 		'speed' 			: 3,
+		'shadow_color'		: Color.sage,
 	},
 
 	'Guided_Bullet' : {
 		'contact_range' 	: 12,
 		'life_time' 		: 4,
 		'speed' 			: 3,
+		'shadow_color'		: Color.green,
 	},
 
 	'Variable_Velocity_Guided_Bullet' : {
@@ -20,11 +22,13 @@ bulletsetting = {
 		'max_speed' 		: 12,
 		'min_speed' 		: 0.01,
 		'attenuation_value'	: 0.1,
+		'shadow_color'		: Color.orange,
 	},
 	'Normal_Multiple_Bullet' : {
 		'contact_range' 	: 12,
 		'life_time' 		: 7,
 		'speed'				: 2,
+		'shadow_color'		: Color.maroon,
 
 		'shots_angle'		: 1,
 		'shots_size'		: 4,
@@ -33,6 +37,7 @@ bulletsetting = {
 		'shots_contact_range':4,
 		'shots_life_time' 	: 2,
 		'shots_speed'		: 1,
+		'shots_shadow_color': Color.black
 	}
 }
 
@@ -151,8 +156,8 @@ formations = {
 stagesettion = [
 (1.0, 4.0, formations['sickle_Normal_Bullet_1']),
 (3.0, 4.0, formations['sickle_Normal_Bullet_2']),
-(7.0, 5.0, formations['circle_Guided_Bullet_1']),
-(12.0, 7.0, formations['arc_Normal_Bullet_1']),
+(6.3, 5.0, formations['circle_Guided_Bullet_1']),
+(12.5, 7.0, formations['arc_Normal_Bullet_1']),
 (17.0, 2.0, formations['Normal_Multiple_Bullet_1']),
 (31.0, 6.0, formations['circle_Guided_Bullet_2']),
 (99999, None, None),

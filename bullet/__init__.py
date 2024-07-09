@@ -12,19 +12,21 @@ class Normal_Bullet(BULLET):
 				contact_range 	: float,
 				life_time 		: float,
 				speed			: float,
+				shadow_color	: Color,
 					
 				target_position	: Vector):
 		
 		BULLET.__init__(self, start_position, contact_range, life_time, speed)
 
 		self.angle = self._targetAngle(target_position)
+		self.shadow_color = shadow_color
 		
 
 	def Movement(self,
 				screen 			: pygame.surface.Surface, _):
 		
 		self._NextPosition(self.angle)
-		self.ShowBullet(screen, self.contact_range)
+		self.ShowBullet(screen, self.shadow_color, self.contact_range)
 
 		return None
 class Guided_Bullet(BULLET):	
@@ -33,17 +35,18 @@ class Guided_Bullet(BULLET):
 		  		contact_range 	: float,
 		  		life_time 		: float,
 		  		speed			: float,
+				shadow_color	: Color,
 				target_position	: Vector):
 		
 		BULLET.__init__(self, start_position, contact_range, life_time, speed)
-
+		self.shadow_color = shadow_color
 
 	def Movement(self,
 			  	screen			: pygame.surface.Surface,
 				target_position	: Vector,):
 		
 		self._NextPosition(self._targetAngle(target_position))
-		self.ShowBullet(screen, self.contact_range)
+		self.ShowBullet(screen, self.shadow_color, self.contact_range)
 
 		return None
 class Variable_Velocity_Guided_Bullet(BULLET):	
@@ -51,6 +54,7 @@ class Variable_Velocity_Guided_Bullet(BULLET):
 		  		start_position	: Vector,
 		  		contact_range 	: float,
 		  		life_time 		: float,
+				shadow_color	: Color,
 				target_position	: Vector,
 
 		  		max_speed		: float,
@@ -63,7 +67,7 @@ class Variable_Velocity_Guided_Bullet(BULLET):
 		self.min_speed   	 = min_speed
 		self.attenuation_value= attenuation_value
 		self.target_angle 	 = 0.0
-
+		self.shadow_color = shadow_color
 
 	def Movement(self, 
 			  	screen 			: pygame.surface.Surface,
@@ -76,7 +80,7 @@ class Variable_Velocity_Guided_Bullet(BULLET):
 		self.speed *= 1-self.attenuation_value
 		self._NextPosition(self.target_angle)
 
-		self.ShowBullet(screen, self.contact_range)
+		self.ShowBullet(screen, self.shadow_color, self.contact_range)
 		return None
 class Normal_Multiple_Bullet(Normal_Bullet, MultipleBullet):
 	def __init__(self,
@@ -84,6 +88,7 @@ class Normal_Multiple_Bullet(Normal_Bullet, MultipleBullet):
 		  		contact_range 	: float,
 		  		life_time 		: float,
 		  		speed			: float,
+				shadow_color	: Color,
 				target_position	: Vector,
 
 				shots_angle		: float,
@@ -93,13 +98,15 @@ class Normal_Multiple_Bullet(Normal_Bullet, MultipleBullet):
 
 		  		shots_contact_range : float,
 		  		shots_life_time 	: float,
-		  		shots_speed			: float):
+		  		shots_speed			: float,
+				shots_shadow_color	: Color,):
 		  
 		Normal_Bullet.__init__(self, 
 						start_position, 
 						contact_range, 
 						life_time, 
 						speed, 
+						shadow_color,
 						target_position)
 		
 		MultipleBullet.__init__(self, 
@@ -111,9 +118,10 @@ class Normal_Multiple_Bullet(Normal_Bullet, MultipleBullet):
 						shots_spin_angle, 
 
 						Normal_Bullet, 
-						contact_range = shots_contact_range, 
-						life_time 	= shots_life_time, 
-						speed 		= shots_speed)
+						contact_range 	= shots_contact_range, 
+						life_time 		= shots_life_time, 
+						speed 			= shots_speed,
+						shadow_color 	= shots_shadow_color)
 		
 	def Movement(self, 
 			  	screen 			: pygame.surface.Surface, 

@@ -1,14 +1,23 @@
 import pygame
-from Start_Button import draw_button, draw_best_record
-from timer import start_timer, get_elapsed_time
-from Moving import draw_character, update_character_position
+from Start_Button   import draw_button, draw_best_record
+from timer          import start_timer, get_elapsed_time
+from Moving         import draw_character, update_character_position
 from save_game_state import load_game_state, save_game_state
+
+from stage              import Stage
+from bullet.dataclasse  import *
+
 
 # Pygame 초기화 및 화면 설정
 pygame.init()
 WIDTH, HEIGHT = 700, 700
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
+screen.fill((255, 255, 255))
+t_surface = screen.convert_alpha()
 pygame.display.set_caption("Avoid_TheBall")
+clock = pygame.time.Clock()
+
+Stage_ = Stage()
 
 # 한글 폰트 설정 (pygame의 기본 폰트 사용)
 pygame.font.init()
@@ -24,6 +33,10 @@ character_size, character_color = 20, (0, 0, 0)
 timer_running, start_time, best_time = False, None, float('inf')
 character_position, timer_running, start_time, best_time = load_game_state()
 timer_running = False
+bullets = []
+
+safe_cool_time = 3
+safe_time = 0
 
 # 배경 이미지 로드 및 스케일링
 background_image = pygame.image.load('image\\background.png')
@@ -31,13 +44,17 @@ background_image = pygame.transform.scale(background_image, (WIDTH, HEIGHT))
 
 # 상태 초기화 함수
 def reset_game_state():
-    global character_x, character_y, timer_running, start_time
+    global character_x, character_y, timer_running, start_time, bullets, Stage_
     character_x, character_y = WIDTH // 2 - 15, HEIGHT // 2 - 15
     timer_running, start_time = False, None
+    bullets = []
+    Stage_ = Stage()
 
 # 메인 게임 루프
 running = True
 while running:
+    clock.tick(64)
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
@@ -48,19 +65,22 @@ while running:
                     timer_running, start_time = True, start_timer()
                     save_game_state((character_x, character_y), timer_running, start_time, best_time)
 
-            elif event.type == pygame.KEYDOWN and event.key == pygame.K_f:
-                if timer_running:
-                    elapsed_time = get_elapsed_time(start_time)
-                    if elapsed_time > best_time:
-                        best_time = elapsed_time
-                reset_game_state()
-                save_game_state((character_x, character_y), timer_running, start_time, best_time)
+            # elif event.type == pygame.KEYDOWN and event.key == pygame.K_f:
+            #     if timer_running:
+            #         elapsed_time = get_elapsed_time(start_time)
+            #         if elapsed_time > best_time:
+            #             best_time = elapsed_time
+            #     reset_game_state()
+            #     save_game_state((character_x, character_y), timer_running, start_time, best_time)
 
+    #screen.fill((255, 255, 255))
+    
     # 배경 그리기
     if not timer_running:
         screen.blit(background_image, (0, 0))
     else:
-        screen.fill((255, 255, 255))
+        t_surface.fill((255, 255, 255, 80))
+        screen.blit(t_surface, (0, 0))
 
     # 시작 버튼 또는 타이머 상태에 따라 그리기
     if not timer_running:
@@ -79,6 +99,27 @@ while running:
         score_text = f'Your Record: {elapsed_time:.2f}'
         text_surface = font.render(score_text, True, (0, 0, 0))
         screen.blit(text_surface, (20, 20))
+
+        MousePos = Vector(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1])
+        bullets += Stage_.Checke(elapsed_time, MousePos)
+
+        for bullet in bullets:
+            shots = bullet.Movement(screen, MousePos)
+            if shots: bullets += shots
+            
+            Del_Checke = bullet.DelChecker(MousePos)
+            
+            if Del_Checke == 1: bullets.remove(bullet)
+            elif Del_Checke == 2:
+                bullets.remove(bullet)
+                if safe_time + safe_cool_time > elapsed_time:
+                    elapsed_time = get_elapsed_time(start_time)
+                    if elapsed_time > best_time:
+                        best_time = elapsed_time
+                    reset_game_state()
+                    save_game_state((character_x, character_y), timer_running, start_time, best_time)
+                    continue
+                else: safe_time = elapsed_time
 
         # 캐릭터 위치 업데이트 및 그리기
         character_x, character_y = update_character_position(screen, character_x, character_y, character_size)

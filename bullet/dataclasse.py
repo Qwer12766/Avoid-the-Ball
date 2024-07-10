@@ -13,5 +13,9 @@ class Vector:
 	
 @dataclass(frozen=True)
 class Color:
-	black : tuple = (0,0,0)
-	white : tuple = (255,255,255)
+	white 	: tuple = (255,255,255)
+	black 	: tuple = (0, 0, 0)
+	sage 	: tuple = (85, 88, 67)
+	maroon	: tuple = (117, 14, 33)
+	orange	: tuple = (227, 101, 29)
+	green	: tuple = (190, 215, 84)

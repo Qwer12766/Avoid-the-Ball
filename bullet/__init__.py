@@ -1,9 +1,9 @@
 import math
 import pygame
 
-from dataclasse 		import *
-from dataset 			import *
-from mainbulletclasse 	import BULLET, MultipleBullet
+from bullet.dataclasse 			import *
+from bullet.dataset 			import *
+from bullet.mainbulletclasse 	import BULLET, MultipleBullet
 
 
 class Normal_Bullet(BULLET):
@@ -12,19 +12,21 @@ class Normal_Bullet(BULLET):
 				contact_range 	: float,
 				life_time 		: float,
 				speed			: float,
+				shadow_color	: Color,
 					
-				taget_position	: Vector):
+				target_position	: Vector):
 		
 		BULLET.__init__(self, start_position, contact_range, life_time, speed)
 
-		self.angle = self._TagetAngle(taget_position)
+		self.angle = self._targetAngle(target_position)
+		self.shadow_color = shadow_color
 		
 
 	def Movement(self,
 				screen 			: pygame.surface.Surface, _):
 		
 		self._NextPosition(self.angle)
-		self.ShowBullet(screen, self.contact_range)
+		self.ShowBullet(screen, self.shadow_color, self.contact_range)
 
 		return None
 class Guided_Bullet(BULLET):	
@@ -33,17 +35,18 @@ class Guided_Bullet(BULLET):
 		  		contact_range 	: float,
 		  		life_time 		: float,
 		  		speed			: float,
-				taget_position	: Vector):
+				shadow_color	: Color,
+				target_position	: Vector):
 		
 		BULLET.__init__(self, start_position, contact_range, life_time, speed)
-
+		self.shadow_color = shadow_color
 
 	def Movement(self,
 			  	screen			: pygame.surface.Surface,
-				taget_position	: Vector,):
+				target_position	: Vector,):
 		
-		self._NextPosition(self._TagetAngle(taget_position))
-		self.ShowBullet(screen, self.contact_range)
+		self._NextPosition(self._targetAngle(target_position))
+		self.ShowBullet(screen, self.shadow_color, self.contact_range)
 
 		return None
 class Variable_Velocity_Guided_Bullet(BULLET):	
@@ -51,7 +54,8 @@ class Variable_Velocity_Guided_Bullet(BULLET):
 		  		start_position	: Vector,
 		  		contact_range 	: float,
 		  		life_time 		: float,
-				taget_position	: Vector,
+				shadow_color	: Color,
+				target_position	: Vector,
 
 		  		max_speed		: float,
 		  		min_speed		: float,
@@ -62,21 +66,21 @@ class Variable_Velocity_Guided_Bullet(BULLET):
 		self.max_speed   	 = max_speed
 		self.min_speed   	 = min_speed
 		self.attenuation_value= attenuation_value
-		self.taget_angle 	 = 0.0
-
+		self.target_angle 	 = 0.0
+		self.shadow_color = shadow_color
 
 	def Movement(self, 
 			  	screen 			: pygame.surface.Surface,
-				taget_position	: Vector):
+				target_position	: Vector):
 		
 		if self.speed < self.min_speed:
-			self.taget_angle= self._TagetAngle(taget_position)
+			self.target_angle= self._targetAngle(target_position)
 			self.speed 	  	= self.max_speed
 
 		self.speed *= 1-self.attenuation_value
-		self._NextPosition(self.taget_angle)
+		self._NextPosition(self.target_angle)
 
-		self.ShowBullet(screen, self.contact_range)
+		self.ShowBullet(screen, self.shadow_color, self.contact_range)
 		return None
 class Normal_Multiple_Bullet(Normal_Bullet, MultipleBullet):
 	def __init__(self,
@@ -84,7 +88,8 @@ class Normal_Multiple_Bullet(Normal_Bullet, MultipleBullet):
 		  		contact_range 	: float,
 		  		life_time 		: float,
 		  		speed			: float,
-				taget_position	: Vector,
+				shadow_color	: Color,
+				target_position	: Vector,
 
 				shots_angle		: float,
 				shots_size		: int,
@@ -93,14 +98,16 @@ class Normal_Multiple_Bullet(Normal_Bullet, MultipleBullet):
 
 		  		shots_contact_range : float,
 		  		shots_life_time 	: float,
-		  		shots_speed			: float):
+		  		shots_speed			: float,
+				shots_shadow_color	: Color,):
 		  
 		Normal_Bullet.__init__(self, 
 						start_position, 
 						contact_range, 
 						life_time, 
 						speed, 
-						taget_position)
+						shadow_color,
+						target_position)
 		
 		MultipleBullet.__init__(self, 
 						start_position, 
@@ -111,16 +118,17 @@ class Normal_Multiple_Bullet(Normal_Bullet, MultipleBullet):
 						shots_spin_angle, 
 
 						Normal_Bullet, 
-						contact_range = shots_contact_range, 
-						life_time 	= shots_life_time, 
-						speed 		= shots_speed)
+						contact_range 	= shots_contact_range, 
+						life_time 		= shots_life_time, 
+						speed 			= shots_speed,
+						shadow_color 	= shots_shadow_color)
 		
 	def Movement(self, 
 			  	screen 			: pygame.surface.Surface, 
-				taget_position	: Vector):
+				target_position	: Vector):
 		
 		Normal_Bullet.Movement(self, screen, None)
-		return MultipleBullet.Movement(self, screen, taget_position)
+		return MultipleBullet.Movement(self, self.position)
 
 class Formation:
 	def circle(
@@ -128,18 +136,19 @@ class Formation:
 			size 		  	: int,
 			center_position	: Vector,
 			target_position : Vector,
-			bullat_type		: type) -> list:
+			bullat_type		: type,
+			arc_angle		: float = 1) -> list:
 		
 		bullat_angle = 2*math.pi/size
 	
 		bullets = []
 		
 		for i in range(size):
-			X_Pos = math.cos(bullat_angle*i)*range_ + center_position.x
-			Y_Pos = math.sin(bullat_angle*i)*range_ + center_position.y
+			X_Pos = math.cos(bullat_angle*i*arc_angle)*range_ + center_position.x
+			Y_Pos = math.sin(bullat_angle*i*arc_angle)*range_ + center_position.y
 			
 			bullets.append(
-				bullat_type(**bulletsetting[bullat_type.__name__], taget_position = target_position, start_position = Vector(X_Pos, Y_Pos)))
+				bullat_type(**bulletsetting[bullat_type.__name__], target_position = target_position, start_position = Vector(X_Pos, Y_Pos)))
 					
 		return bullets
 		
@@ -149,7 +158,8 @@ class Formation:
 			location	   	: Vector,
 			center_position	: Vector,
 			target_position : Vector,
-			bullat_type		: type) -> list:
+			bullat_type		: type,
+			target_centralization : bool = False) -> list:
 				
 		bullat_crack = range_/(size-0.999)*2
 		
@@ -163,15 +173,15 @@ class Formation:
 				X_Pos = (range_ * location[0])
 				Y_Pos = (bullat_crack*i) - range_
 				
-				taget_position = Vector(-X_Pos + center_position.x, Y_Pos + center_position.y)
+				if not target_centralization: target_position = Vector(-X_Pos + center_position.x, Y_Pos + center_position.y)
 			else:
 				X_Pos = (bullat_crack*i) - range_
 				Y_Pos = (range_ * location[1])
 				
-				taget_position = Vector(X_Pos + center_position.x, -Y_Pos + center_position.y)
+				if not target_centralization: target_position = Vector(X_Pos + center_position.x, -Y_Pos + center_position.y)
 			
 			bullets.append(
-				bullat_type(**bulletsetting_, taget_position = taget_position, start_position = Vector(X_Pos + center_position.x, Y_Pos + center_position.y)))
+				bullat_type(**bulletsetting_, target_position = target_position, start_position = Vector(X_Pos + center_position.x, Y_Pos + center_position.y)))
 				
 		return bullets
 		

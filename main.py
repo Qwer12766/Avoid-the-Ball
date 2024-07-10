@@ -38,9 +38,21 @@ bullets = []
 safe_cool_time = 3
 safe_time = 0
 
+shield = True
+
+mysound = pygame.mixer.Sound("sound\\ingame.ogg")
+
 # 배경 이미지 로드 및 스케일링
 background_image = pygame.image.load('image\\background.png')
 background_image = pygame.transform.scale(background_image, (WIDTH, HEIGHT))
+
+character_form = [
+    pygame.image.load('image\\character.png'),
+    pygame.image.load('image\\character.V1.png')
+]
+
+character_form[0] = pygame.transform.scale(character_form[0], (50, 28))
+character_form[1] = pygame.transform.scale(character_form[1], (50, 28))
 
 # 상태 초기화 함수
 def reset_game_state():
@@ -61,20 +73,12 @@ while running:
 
         elif event.type in (pygame.MOUSEBUTTONDOWN, pygame.KEYDOWN):
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                mysound.play()
+
                 if not timer_running and start_button_rect.collidepoint(event.pos):
                     timer_running, start_time = True, start_timer()
                     save_game_state((character_x, character_y), timer_running, start_time, best_time)
 
-            # elif event.type == pygame.KEYDOWN and event.key == pygame.K_f:
-            #     if timer_running:
-            #         elapsed_time = get_elapsed_time(start_time)
-            #         if elapsed_time > best_time:
-            #             best_time = elapsed_time
-            #     reset_game_state()
-            #     save_game_state((character_x, character_y), timer_running, start_time, best_time)
-
-    #screen.fill((255, 255, 255))
-    
     # 배경 그리기
     if not timer_running:
         screen.blit(background_image, (0, 0))
@@ -103,6 +107,8 @@ while running:
         MousePos = Vector(pygame.mouse.get_pos()[0], pygame.mouse.get_pos()[1])
         bullets += Stage_.Checke(elapsed_time, MousePos)
 
+        if (not shield) and (safe_time+safe_cool_time < elapsed_time): shield = True
+
         for bullet in bullets:
             shots = bullet.Movement(screen, MousePos)
             if shots: bullets += shots
@@ -112,27 +118,27 @@ while running:
             if Del_Checke == 1: bullets.remove(bullet)
             elif Del_Checke == 2: 
                 bullets.remove(bullet)
-                
-                if safe_time + safe_cool_time > elapsed_time and elapsed_time-safe_time > 0.2:
-                    elapsed_time = get_elapsed_time(start_time)
-                    
+                if shield:
+                    shield = False
+                    safe_time = elapsed_time
+                else:
+                    shield = True
                     if elapsed_time > best_time:
                         best_time = elapsed_time
                         print(elapsed_time)
                     reset_game_state()
+                    mysound.stop()
+
                     save_game_state((character_x, character_y), timer_running, start_time, best_time)
 
                     break
-                    
-
-                else: safe_time = elapsed_time
+                
 
         # 캐릭터 위치 업데이트 및 그리기
         character_x, character_y = update_character_position(screen, character_x, character_y, character_size)
-        draw_character(screen, character_x, character_y, character_size, character_color)
-
-        # 게임 상태 저장
-        save_game_state((character_x, character_y), timer_running, start_time, best_time)
+        #draw_character(screen, character_x, character_y, character_size, character_color)
+        if shield:  screen.blit(character_form[1], (character_x-14, character_y-7))
+        else:       screen.blit(character_form[0], (character_x-14, character_y-7))
 
     pygame.display.flip()
     pygame.time.delay(10)

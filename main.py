@@ -46,7 +46,7 @@ background_image = pygame.transform.scale(background_image, (WIDTH, HEIGHT))
 def reset_game_state():
     global character_x, character_y, timer_running, start_time, bullets, Stage_
     character_x, character_y = WIDTH // 2 - 15, HEIGHT // 2 - 15
-    timer_running, start_time = False, None
+    timer_running, start_time = False, 0
     bullets = []
     Stage_ = Stage()
 
@@ -110,15 +110,21 @@ while running:
             Del_Checke = bullet.DelChecker(MousePos)
             
             if Del_Checke == 1: bullets.remove(bullet)
-            elif Del_Checke == 2:
+            elif Del_Checke == 2: 
                 bullets.remove(bullet)
-                if safe_time + safe_cool_time > elapsed_time:
+                
+                if safe_time + safe_cool_time > elapsed_time and elapsed_time-safe_time > 0.2:
                     elapsed_time = get_elapsed_time(start_time)
+                    
                     if elapsed_time > best_time:
                         best_time = elapsed_time
+                        print(elapsed_time)
                     reset_game_state()
                     save_game_state((character_x, character_y), timer_running, start_time, best_time)
-                    continue
+
+                    break
+                    
+
                 else: safe_time = elapsed_time
 
         # 캐릭터 위치 업데이트 및 그리기

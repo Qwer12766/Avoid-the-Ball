@@ -151,14 +151,31 @@ formations = {
 			}
 		}
 	],
+	'End_Bullet' : [
+		{
+		'bullat_type'	: 'Normal_Multiple_Bullet',
+		'formation'		: 'circle',		
+		'other':{		
+			'range_' 			: RANGE_type_02, 		
+			'size' 				: 10, 		
+			'center_position' 	: Vector(RANGE_type_01,RANGE_type_01), 		
+			'target_position' 	: Vector(RANGE_type_01,RANGE_type_01),
+			}
+		}
+	],
 }
 
 stagesettion = [
 (1.0, 4.0, formations['sickle_Normal_Bullet_1']),
 (3.0, 4.0, formations['sickle_Normal_Bullet_2']),
-(6.3, 5.0, formations['circle_Guided_Bullet_1']),
-(12.5, 7.0, formations['arc_Normal_Bullet_1']),
-(17.0, 2.0, formations['Normal_Multiple_Bullet_1']),
-(31.0, 6.0, formations['circle_Guided_Bullet_2']),
+(7.0, 5.2, formations['circle_Guided_Bullet_1']),
+(11.5, 7.3, formations['arc_Normal_Bullet_1']),
+(17.5, 2.1, formations['Normal_Multiple_Bullet_1']),
+(31.0, 6.4, formations['circle_Guided_Bullet_2']),
+(50.0, 1.0, formations['Normal_Multiple_Bullet_1']),
+(60.0, 1.0, formations['circle_Guided_Bullet_2']),
+(70.0, 1.0, formations['circle_Guided_Bullet_1']),
+(80.0, 0.3, formations['circle_Guided_Bullet_2']),
+(80.0, 6.0, formations['End_Bullet']),
 (99999, None, None),
 ]

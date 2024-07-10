@@ -19,11 +19,15 @@ start_button_rect = pygame.Rect(WIDTH // 2 - 100, HEIGHT // 2 - 50, 200, 100)
 
 # 게임 상태 변수 초기화
 character_x, character_y = WIDTH // 2 - 15, HEIGHT // 2 - 15
-character_size, character_color, character_speed = 30, (0, 0, 0), 3
+character_size, character_color = 20, (0, 0, 0)
 
 timer_running, start_time, best_time = False, None, float('inf')
 character_position, timer_running, start_time, best_time = load_game_state()
 timer_running = False
+
+# 배경 이미지 로드 및 스케일링
+background_image = pygame.image.load('image\\background.png')
+background_image = pygame.transform.scale(background_image, (WIDTH, HEIGHT))
 
 # 상태 초기화 함수
 def reset_game_state():
@@ -52,7 +56,11 @@ while running:
                 reset_game_state()
                 save_game_state((character_x, character_y), timer_running, start_time, best_time)
 
-    screen.fill((255, 255, 255))
+    # 배경 그리기
+    if not timer_running:
+        screen.blit(background_image, (0, 0))
+    else:
+        screen.fill((255, 255, 255))
 
     # 시작 버튼 또는 타이머 상태에 따라 그리기
     if not timer_running:
